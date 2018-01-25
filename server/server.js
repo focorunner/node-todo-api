@@ -29,7 +29,7 @@ app.post('/todos', (req, res) => {
 app.get('/todos', (req, res) => {
   Todo.find().then((todos) => {
     res.send({todos});
-  }, (e) => {
+  }).catch((e) => {
     res.status(400).send(e);
   });
 });
@@ -92,6 +92,21 @@ app.patch('/todos/:id', (req, res) => {
     res.status(400).send();
   })
 });
+
+app.post('/users', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  var user = new User(body);
+
+  user.save().then(() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send(_.pick(user, ['_id', 'email']));
+    // res.header('x-auth', token).send(user);  // if overriding .toJSON as called in Mongoose
+  }).catch((e) => {
+    res.status(400).send(e);
+  });
+});
+
 
 
 app.listen(port, () => {

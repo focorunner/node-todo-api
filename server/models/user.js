@@ -31,7 +31,7 @@ var UserSchema = new mongoose.Schema({
       required: true
     }
   }]
-});
+},{usePushEach: true});
 
 // If overriding method called in Mongoose to filter properties from user object.
 // UserSchema.methods.toJSON = function() {

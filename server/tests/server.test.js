@@ -4,23 +4,10 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require ('./../models/todo');
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
-const todos = [{
-  _id: new ObjectID(),
-  text: 'First test todo'
-}, {
-  _id: new ObjectID(),
-  text: 'Second test todo',
-  completed: true,
-  cmpletedAt: 333
-}];
-
-beforeEach((done) => {
-  Todo.remove({}).then(() => {
-    return Todo.insertMany(todos);
-  }).then(() => done())
-  .catch((e) => done(e));
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('POST /todos', () => {
   it('should create a new todo', (done) => {
@@ -35,7 +22,7 @@ describe('POST /todos', () => {
       })
       .end((err, res) => {
         if(err) {
-          done(err);
+          return done(err);
         }
 
         Todo.find({text}).then((todos) => {
@@ -48,10 +35,13 @@ describe('POST /todos', () => {
 
   it('should not create todo with invalid body data', () => {
     request(app)
-      .post({})
+      .post('/todos')
+      .send({})
       .expect(400)
       .end((err, res) => {
-        if(err) {return done(err);}
+        if(err) {
+          return done(err);
+        }
 
         Todo.find().then((todos) => {
           expect(todos.length).toBe(2);
